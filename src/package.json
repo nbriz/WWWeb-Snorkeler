@@ -1,0 +1,29 @@
+{
+  "title": "WWWeb Snorkeler",
+  "name": "wwweb-snorkeler",
+  "version": "0.0.1",
+  "description": "a Firefox addon that takes u just below the wwweb's surface. interactive accompaniment to the 'How To / Why Make Internet Art' series",
+  "main": "index.js",
+  "author": "Nick Briz",
+  "scripts": {
+    "start": "../jpm-sdk/node_modules/jpm/bin/jpm run",
+    "debug": "../jpm-sdk/node_modules/jpm/bin/jpm run --debug"
+  },  
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "GPL-3.0",
+  "keywords": [
+    "jetpack",
+    "netart",
+    "web art",
+    "internet art",
+    "new media art",
+    "artware",
+    "courseware",
+    "editor",
+    "code",
+    "play ground"
+  ]
+}
