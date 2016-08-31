@@ -4,10 +4,8 @@ var sidebars 	= require("sdk/ui/sidebar");
 var tabs 		= require("sdk/tabs");
 var pageMod 	= require("sdk/page-mod");
 
-
 var wrkrs = []; // holds workers
 var tWrkr;		// worker for tab listener
-
 
 // ---------------------------------------------------------------------
 // create browser addon icon/button ------------------------------------

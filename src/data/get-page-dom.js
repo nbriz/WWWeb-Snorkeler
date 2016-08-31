@@ -19,6 +19,7 @@ if( document.doctype ){
 // var html = "<html" + attr;
 
 var data = {
+	location: document.location,
 	doctype: dtStr,
 	html: document.documentElement.outerHTML
 }

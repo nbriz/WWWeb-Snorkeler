@@ -98,11 +98,17 @@ addon.port.on('passDOM',function( doc ){
 	if( doc.doctype ) edtr.editor.setValue( doc.doctype + "\n" + doc.html );
 	else edtr.editor.setValue( doc.html );
 	edtr.uiTip = true;
-	edtr.firstError = true;
-	edtr.firstMessage = true;	
+	edtr.firstError = false;
+	edtr.firstMessage = false;	
+	// is this a lesson page?
+	if( doc.location.host=="netart.rocks" && doc.location.pathname.indexOf("/tutorials/")==0) 
+		edtr.friendlyErrors = true;
+	else
+		edtr.friendlyErrors = false;
 	// account for "top" offset
 	document.getElementById('playGnd-editor').style.height = window.innerHeight - 35 + "px";
 });
+
 
 // receive new selected target from index ( who got it from Selector )
 addon.port.on('new-target',function( targ ){
