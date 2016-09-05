@@ -12,16 +12,15 @@ if( document.doctype ){
 	dtStr = null;
 }
 
+var outerHTML = document.documentElement.outerHTML;
+	outerHTML = outerHTML.replace('<head>','\n\t<head>');
+	outerHTML = outerHTML.replace('</body>','\t</body>\n');
 
-// var attr = document.getElementsByTagName('html')[0].attributes;
-//  	attr = (attr.length>0) ? attr.toString() : '>';
-//  	attr = (attr!==">") ? attr.replace(/,/g, " ") : '>';
-// var html = "<html" + attr;
 
 var data = {
 	location: document.location,
 	doctype: dtStr,
-	html: document.documentElement.outerHTML
+	html: outerHTML
 }
 
 // let index.js know what the DOM for new page is

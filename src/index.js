@@ -3,9 +3,11 @@ var buttons 	= require('sdk/ui/button/action');
 var sidebars 	= require("sdk/ui/sidebar");
 var tabs 		= require("sdk/tabs");
 var pageMod 	= require("sdk/page-mod");
+var Request 	= require("sdk/request").Request;
 
 var wrkrs = []; // holds workers
 var tWrkr;		// worker for tab listener
+var DOM; // holds current tab's DOM object
 
 // ---------------------------------------------------------------------
 // create browser addon icon/button ------------------------------------
@@ -30,10 +32,8 @@ var button = buttons.ActionButton({
 // tab listener  -------------------------------------------------------
 // ---------------------------------------------------------------------
 
-var DOM; // holds current tab's DOM object
 
-// when a new page is loaded...
-tabs.on('ready', function(tab) {
+function onTab(tab){
 	// inject content script which emits back the DOM nfo of active tab
 	tWrkr = tab.attach({
 		contentScriptFile: './get-page-dom.js'
@@ -45,8 +45,12 @@ tabs.on('ready', function(tab) {
 		DOM = data;
 	});
 	
-	// getColor();
-});
+}
+
+// when a new page is loaded...
+tabs.on('ready', tab => { onTab(tab); });
+// when old tab is made active...
+tabs.on('activate', tab => { onTab(tab); });
 
 
 // ---------------------------------------------------------------------
@@ -96,35 +100,41 @@ var sidebar = sidebars.Sidebar({
 		worker.port.on('unselectable',function(){
 			if(selWrkr) selWrkr.port.emit('unselectable');
 		});		
+		// when user clicks on "start tutorial" in the sidebar nfo-pane
+		// get that tutorial's info && send it bax to the sidebar
+		worker.port.on('start-tutorial',function(){
+			var pa = DOM.location.pathname.substr(11,DOM.location.pathname.length).split('/');
+			var tut = Request({
+				url: 'http://netart.rocks/api?season='+pa[0]+'&episode='+pa[0],
+				onComplete: function (response) {
+					worker.port.emit('tutorial-nfo', {
+						videos: JSON.parse(response.text).data.videos,
+						script: JSON.parse(response.text).data.script,
+						season: JSON.parse(response.text).season,
+						episode: JSON.parse(response.text).episode,
+					});					
+				}
+			});
+			tut.get();	
+		});
+		// resize it...
+		var utils = require('sdk/window/utils');
+		var win = utils.getMostRecentBrowserWindow();
+		if (utils.isBrowser (win)){
+		    var sidebar = win.document.getElementById ("sidebar");
+		    sidebar.style.minWidth = "600px";
+		    sidebar.style.width = "600px";
+		}
 	},
   	onDetach: function(worker) {
   		// still not sure when this runs? think on [x]close? 
 		// either way, get rid of the old worker ( free up it's memory )
 		var index = wrkrs.indexOf(worker);
-		if(index != -1) wrkrs.splice(index, 1);
+		if(index != -1) wrkrs.splice(index, 1);		
 	}
 });
 
 
-
-// ---------------------------------------------------------------------
-// color picker  -------------------------------------------------------
-// ---------------------------------------------------------------------
-
-
-function getColor(){
-
-	tabs.activeTab.attach({ 
-		contentScriptFile: './libs/html2canvas.min.js',
-		contentScript: 
-			// 'html2canvas(document.documentElement.children[1]).then(function(canvas) {'+
-			'html2canvas(document.body).then(function(canvas) {'+
-			    'var dataURL = canvas.toDataURL();'+
-			    'console.log(dataURL);'+
-			'});'
-	});
-
-}
 
 // ---------------------------------------------------------------------
 // Selector ------------------------------------------------------------
@@ -180,5 +190,7 @@ function injectSelector(){
 		wrkrs[0].port.emit("new-target", data );
 	});
 
-
 }
+
+
+
