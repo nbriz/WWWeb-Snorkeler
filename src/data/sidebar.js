@@ -150,7 +150,7 @@ addy.port.on('tutorial-nfo',function( tut ){
 	tutObj = tut;
 	// insert youtube api ( should fire onYouTubeIframeAPIReady )
 	var tag = document.createElement('script');
-		tag.src = "https://www.youtube.com/iframe_api";  
+		tag.src = "libs/www-widgetapi.js";  
 	var scpt = document.getElementsByTagName('script')[0];
 	    scpt.parentNode.insertBefore(tag, scpt);
 });
@@ -215,9 +215,14 @@ addy.port.on('passDOM',function( doc ){
 	edtr.firstError = false;
 	edtr.firstMessage = false;	
 	// is this a lesson page?
-	if( doc.location.host=="netart.rocks" && doc.location.pathname.indexOf("/tutorials/")==0){
-		edtr.friendlyErrors = true;
-		makeTutorialElements();
+	if( doc.location.host=="netart.rocks" ){
+		if( doc.location.pathname.indexOf("/tutorials/")==0 ){
+			edtr.friendlyErrors = true;
+			makeTutorialElements();		
+		}
+		if( doc.location.pathname.indexOf("/files/")==0){
+			edtr.friendlyErrors = true;
+		}
 	} 		
 	else
 		edtr.friendlyErrors = false;
@@ -301,6 +306,14 @@ addy.port.on('update-editor',function(){
 // menu stuff ----------------------------------------------------------
 // ---------------------------------------------------------------------
 
+addy.port.on('version',function(v){
+	var msg = 'hi! my name is <a href="http://nickbriz.com" target="_blank">Nick Briz</a>'+
+	' && this is the first version of the "WWWeb Snorkeler" (v'+v+')'+
+	' a "critical courseware" Firefox addon for interactively following along w/my hypermedia series'+
+	' “How To / Why Make Internet Art”.'
+	eID('nfo-content').innerHTML = msg;
+});
+
 function showingSub(){
 	if(
 		eID('nfo-pane').style.display == "block" ||
@@ -362,6 +375,10 @@ document.body.addEventListener('click',function(e){
 		e.target.className = "sub-item-locked"
 		addy.port.emit('show-selector');
 	}
+	else if(e.target.id=="template" && e.target.className=="sub-item"){
+		hideSub();
+		addy.port.emit('jump-to-template');
+	}	
 	else if(e.target.id=="comingsoon" && e.target.className=="sub-item"){
 		hideSub();
 		alert('these snippets are gonna be so useful i swear! ...not ready yet though');

@@ -5,9 +5,30 @@ var tabs 		= require("sdk/tabs");
 var pageMod 	= require("sdk/page-mod");
 var Request 	= require("sdk/request").Request;
 
+var version = "0.0.6";
+
 var wrkrs = []; // holds workers
 var tWrkr;		// worker for tab listener
 var DOM; // holds current tab's DOM object
+
+// ---------------------------------------------------------------------
+// check for updates ---------------------------------------------------
+// ---------------------------------------------------------------------
+
+var updates = Request({
+	url: 'http://netart.rocks/api?addon=true',
+	onComplete: function (response) {
+		var data = JSON.parse(response.text);
+		if( version!==data.latest.version ){
+			tabs.activeTab.attach({ 
+				contentScript:'alert("Hey! sorry to bug u, but u\'re running an old version of the WWWeb Snorkeler addon,'+
+								' visit http://netart.rocks to get the latest one! >> '+
+								data.latest.info+'");' 
+			});
+		}								
+	}
+});
+updates.get();
 
 // ---------------------------------------------------------------------
 // create browser addon icon/button ------------------------------------
@@ -43,6 +64,9 @@ function onTab(tab){
 	tWrkr.port.on("newDOM", function(data) {
 		sidebar.hide();
 		DOM = data;
+		// if template page, open sidebar by default
+		if( DOM.location.href=="http://netart.rocks/files/template.html")
+			sidebar.show();
 	});
 	
 }
@@ -83,6 +107,8 @@ var sidebar = sidebars.Sidebar({
 	},
 	onReady: function(worker){
 		wrkrs.push(worker);
+		// pass version...
+		worker.port.emit('version',version);
 		// pass DOM to the sidebar.js
 		worker.port.emit( "passDOM", DOM );
 		// when sidebar emits "update" update content w/code from editor (ie. sidebar)
@@ -91,6 +117,10 @@ var sidebar = sidebars.Sidebar({
 		});	
 		// when sidebar emits "show-selector" inject selector code into active tab
 		worker.port.on("show-selector", injectSelector );
+		// when sidebar emits "jump-to-template" navigate to template page
+		worker.port.on("jump-to-template", function(){
+			tabs.activeTab.attach({contentScript:'location = "http://netart.rocks/files/template.html"'});			
+		});
 		// when editor is in focus let Selector know
 		worker.port.on('editor-focus',function(){
 			if(selWrkr) selWrkr.port.emit('editor-focus');
