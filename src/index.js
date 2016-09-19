@@ -5,11 +5,15 @@ var tabs 		= require("sdk/tabs");
 var pageMod 	= require("sdk/page-mod");
 var Request 	= require("sdk/request").Request;
 
+var { setTimeout } = require("sdk/timers");
+
 var version = "0.0.6";
 
-var wrkrs = []; // holds workers
-var tWrkr;		// worker for tab listener
-var DOM; // holds current tab's DOM object
+var sWrkr; 		// current sidebar worker ( new everytime sidebar opens )
+var tWrkr;		// current tab worker  ( new everytime new tab is open )
+var TAB = {}; 	// dictionary, holds all custom tab's object
+var tID; 		// current tab's id
+var sidebarOpen = false;
 
 // ---------------------------------------------------------------------
 // check for updates ---------------------------------------------------
@@ -44,37 +48,79 @@ var button = buttons.ActionButton({
 		"96": "./icons/icon-96.png"
 	},
 	onClick: function(state){
-		sidebar.show();
+		// if(!sidebarOpen) sidebar.show();
+		// else sidebar.hide();
+		if(!sidebarOpen) sidebar.show();
+		else sidebar.hide();
 	}
 });
+
+
 
 
 // ---------------------------------------------------------------------
 // tab listener  -------------------------------------------------------
 // ---------------------------------------------------------------------
 
+function getDOM(tab){
+	// make sure TAB[tab.id] has been created in 'activate' listener
+	// before proceeding to get the DOM
+	if( typeof TAB[tab.id] === "undefined"){
+		setTimeout(function(){ getDOM(tab); },250);
+		return;
+	} 
 
-function onTab(tab){
 	// inject content script which emits back the DOM nfo of active tab
 	tWrkr = tab.attach({
 		contentScriptFile: './get-page-dom.js'
 	});
 	// when worker receives DOM nfo from get-page-dom.js 
-	// hide sidebar (if open from prev tab||page) && update DOM object 
 	tWrkr.port.on("newDOM", function(data) {
-		sidebar.hide();
-		DOM = data;
+		TAB[tab.id].location = data.location; 
+		TAB[tab.id].doctype = data.doctype;
+		TAB[tab.id].html = data.html;
 		// if template page, open sidebar by default
-		if( DOM.location.href=="http://netart.rocks/files/template.html")
-			sidebar.show();
-	});
-	
+		if( TAB[tab.id].location.href=="http://netart.rocks/files/template.html") sidebar.show();
+	});	
 }
 
+// when tab is made active...
+tabs.on('activate', tab => {  
+	tID = tab.id;	
+	if( typeof TAB[tID] == "undefined" ){ // ---- if it's a new tab, set it up in the dictionary  
+		TAB[tID] = { 
+			sidebarOpen:false,
+			passedDOM: false, // hasn't passed DOM to sidebar yet ( happens on open )
+		};	
+		if( sidebarOpen ) sidebar.hide();	
+	} else { 							// ---- otherwise handle sidebar
+		if( sidebarOpen ){ // if sidebar is open
+			if( TAB[tID].sidebarOpen ){ 
+				// reload it's proper contents
+				sidebar.hide(); sidebar.show();
+			} else sidebar.hide(); // otherwise hide it
+			
+		} else {
+			// if sideBar is closed, open it if this tab had left it open
+			if( TAB[tID].sidebarOpen ) sidebar.show();
+		}
+	}
+});
+
+// when tab is hidden (b/c another is made active)
+tabs.on('deactivate', tab => { });
+
 // when a new page is loaded...
-tabs.on('ready', tab => { onTab(tab); });
-// when old tab is made active...
-tabs.on('activate', tab => { onTab(tab); });
+tabs.on('ready', tab => {  		
+	console.log('ready',tab.id)
+	getDOM(tab);
+});
+
+// when tab is closed ( get rid of this tab's data from TAB dictionary )
+tabs.on('closed', tab => {  TAB[tab.id] = undefined; }); 
+
+
+
 
 
 // ---------------------------------------------------------------------
@@ -99,27 +145,45 @@ function updatePageContent( value ){
 }
 
 var sidebar = sidebars.Sidebar({
-	id: 'wwweb-snorkeler',
+	id: 'sidebar',
 	title: 'WWWeb Snorkeler', 
 	url: "./sidebar.html",
 	onAttach: function(worker){
 		// sidebar attached but not ready...
 	},
 	onReady: function(worker){
-		wrkrs.push(worker);
+		TAB[tID].sidebarOpen = true; // this particular tab has opened the sidebar
+		sidebarOpen = true;		// sidebar is currently open
+		
+		sWrkr = worker; // reassign global sidebar-worker variable
+		
 		// pass version...
 		worker.port.emit('version',version);
+		
 		// pass DOM to the sidebar.js
-		worker.port.emit( "passDOM", DOM );
+		if( !TAB[tID].passedDOM  ){
+			// if never passed before
+			worker.port.emit( "passDOM", TAB[tID] );
+			TAB[tID].passedDOM = true;
+		} else {
+			// if previously passed for this TAB
+			worker.port.emit("passDOM", { 
+				location: TAB[tID].location,
+				html: TAB[tID].editorValue 
+			});
+		}
+
+		
 		// when sidebar emits "update" update content w/code from editor (ie. sidebar)
 		worker.port.on("update", function(value) {
+			TAB[tID].editorValue = value;
 			updatePageContent( value );
 		});	
 		// when sidebar emits "show-selector" inject selector code into active tab
 		worker.port.on("show-selector", injectSelector );
 		// when sidebar emits "jump-to-template" navigate to template page
 		worker.port.on("jump-to-template", function(){
-			tabs.activeTab.attach({contentScript:'location = "http://netart.rocks/files/template.html"'});			
+			tabs.open("http://netart.rocks/files/template.html");
 		});
 		// when editor is in focus let Selector know
 		worker.port.on('editor-focus',function(){
@@ -133,7 +197,7 @@ var sidebar = sidebars.Sidebar({
 		// when user clicks on "start tutorial" in the sidebar nfo-pane
 		// get that tutorial's info && send it bax to the sidebar
 		worker.port.on('start-tutorial',function(){
-			var pa = DOM.location.pathname.substr(11,DOM.location.pathname.length).split('/');
+			var pa = TAB[tID].location.pathname.substr(11,TAB[tID].location.pathname.length).split('/');
 			var tut = Request({
 				url: 'http://netart.rocks/api?season='+pa[0]+'&episode='+pa[0],
 				onComplete: function (response) {
@@ -157,12 +221,15 @@ var sidebar = sidebars.Sidebar({
 		}
 	},
   	onDetach: function(worker) {
-  		// still not sure when this runs? think on [x]close? 
-		// either way, get rid of the old worker ( free up it's memory )
-		var index = wrkrs.indexOf(worker);
-		if(index != -1) wrkrs.splice(index, 1);		
+  		TAB[tID].sidebarOpen = false; 
+  		sidebarOpen = false;
 	}
 });
+
+
+
+
+
 
 
 
@@ -196,28 +263,25 @@ function injectSelector(){
 	// until Selector.js worker let's us know to unlock the menu item
 	// pass this info along to sidebar...
 	selWrkr.port.on('unlock-element-selector',function(){
-		wrkrs[0].port.emit("unlock-element-selector");
+		sWrkr.port.emit("unlock-element-selector");
 	});
 
 	// when selector is editing an element
 	// let the sidebar know about it
 	selWrkr.port.on('selector-editing',function( htmlstr ){
-		//sidebar.hide();
-		wrkrs[0].port.emit("selector-editing", htmlstr );
+		sWrkr.port.emit("selector-editing", htmlstr );
 	});
 
 	// when selector requests that editor be updated
 	selWrkr.port.on('update-editor',function(){
-		wrkrs[0].port.emit('update-editor');
+		sWrkr.port.emit('update-editor');
 	});
 
 
 	// when worker receives newDOM from Selector ( as a result of editing the element )
 	// pass it along to sidebar.js
 	selWrkr.port.on("new-target", function( data ) {
-		// sidebar.hide();
-		// DOM = data;
-		wrkrs[0].port.emit("new-target", data );
+		sWrkr.port.emit("new-target", data );
 	});
 
 }

@@ -230,7 +230,11 @@ addy.port.on('passDOM',function( doc ){
 	eID('snorkeler-editor').style.top = "35px";
 	// account for "top" offset
 	eID('snorkeler-editor').style.height = window.innerHeight - 35 + "px";
+
+	// send editor value back to sidebar
+	addy.port.emit('update',edtr.editor.getValue());
 });
+
 
 
 
