@@ -2,20 +2,6 @@
 /*
 
 	TODO NOTES:
-
-	create API on server that serves up lesson content when at appropriate tutorial page so...
-	when: .location = netart.rocks/tutorials/01/01 ( season 1 / episode 1 )
-	use 01/01 to make an API call to my server for 01/01 which send back:
-	{
-		videos: ['youtubeurl','otheryoutubeurl'],
-		markers: [
-			{
-				videoID: 'youtubeurl',
-				time: 0.52,
-				
-			}
-		]
-	}
 	
 	______________________________________________
     [ info ][ snippets ][ tools ]
@@ -42,8 +28,6 @@
 
    	>> video errors that interrupt tutorial video && return where last left off??? 
    	( point to <tag> text overlay, rather than speaking it )
-
-	>> firendlyErrors: true ( via window.location? )
 
 
 	

@@ -2,7 +2,7 @@
     scrapped from: http://www.w3schools.com/tags/ref_attributes.asp
     and also: https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes#Attribute_list
 */
-var attributesDict = {
+module.exports = {
     accept: {
         elements: ["<form>", "<input>"],
         supported: true,
@@ -544,7 +544,7 @@ var attributesDict = {
         nfo: { w3c: "Specifies extra information about an element.", mdn: "Text to be displayed in a tooltip when hovering over the element."}
     },
     type: {
-        elements: ["<button>", "<input>", "<command>", "<embed>", "<object>", "<script>", "<source>", "<style>", "<menu>"],
+        elements: ["<button>", "<input>", "<command>", "<embed>", "<object>", "<script>", "<source>", "<style>", "<menu>","<link>"],
         supported: true,
         nfo: { w3c: "Specifies the type of element.", mdn: "Defines the type of the element."}
     },
