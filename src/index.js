@@ -7,10 +7,11 @@ var Request 	= require("sdk/request").Request;
 
 var { setTimeout } = require("sdk/timers");
 
-var version = "0.0.6";
+var version = "0.0.7";
 
 var sWrkr; 		// current sidebar worker ( new everytime sidebar opens )
 var tWrkr;		// current tab worker  ( new everytime new tab is open )
+var Height;		// last registered page height ( used to close sidebar: hack/fix for: https://github.com/nbriz/WWWeb-Snorkeler/issues/4 )
 var TAB = {}; 	// dictionary, holds all custom tab's object
 var tID; 		// current tab's id
 var sidebarOpen = false;
@@ -48,10 +49,14 @@ var button = buttons.ActionButton({
 		"96": "./icons/icon-96.png"
 	},
 	onClick: function(state){
-		// if(!sidebarOpen) sidebar.show();
-		// else sidebar.hide();
-		if(!sidebarOpen) sidebar.show();
-		else sidebar.hide();
+		if( !sidebarOpen && tID 
+			&& typeof TAB[tID].location!=="undefined" 
+			&& TAB[tID].location.href.indexOf('http')==0 
+			// ^ ie. not a mozilla tab ( about:, etc. )
+		)
+			sidebar.show();		
+		else 
+			sidebar.hide();
 	}
 });
 
@@ -62,27 +67,76 @@ var button = buttons.ActionButton({
 // tab listener  -------------------------------------------------------
 // ---------------------------------------------------------------------
 
-function getDOM(tab){
+function prepNewTab(tab){
 	// make sure TAB[tab.id] has been created in 'activate' listener
-	// before proceeding to get the DOM
+	// before proceeding w/the rest
 	if( typeof TAB[tab.id] === "undefined"){
-		setTimeout(function(){ getDOM(tab); },250);
+		setTimeout(function(){ prepNewTab(tab); },250);
 		return;
 	} 
 
-	// inject content script which emits back the DOM nfo of active tab
+	// inject content scripts, which return DOM && listen for Height changes
 	tWrkr = tab.attach({
-		contentScriptFile: './get-page-dom.js'
-	});
+		contentScriptFile: [ 
+			'./get-page-dom.js',
+			'./listen-for-resize.js'
+		]
+	});	
+
+	// -------------------- getDOM --------------------
 	// when worker receives DOM nfo from get-page-dom.js 
 	tWrkr.port.on("newDOM", function(data) {
 		TAB[tab.id].location = data.location; 
 		TAB[tab.id].doctype = data.doctype;
 		TAB[tab.id].html = data.html;
+		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tab.id] );
 		// if template page, open sidebar by default
 		if( TAB[tab.id].location.href=="http://netart.rocks/files/template.html") sidebar.show();
 	});	
+
+
+	// ------------- listenForHeightChange ------------
+	// when worker receives DOM nfo from get-page-dom.js 
+	tWrkr.port.on("pageHeight", function(height) {
+		if( Height !== height ) sidebar.hide();
+		Height = height;
+	});	
 }
+
+// function getDOM(tab){
+// 	// make sure TAB[tab.id] has been created in 'activate' listener
+// 	// before proceeding to get the DOM
+// 	if( typeof TAB[tab.id] === "undefined"){
+// 		setTimeout(function(){ getDOM(tab); },250);
+// 		return;
+// 	} 
+
+// 	// inject content script which emits back the DOM nfo of active tab
+// 	tWrkr = tab.attach({
+// 		contentScriptFile: './get-page-dom.js'
+// 	});
+// 	// when worker receives DOM nfo from get-page-dom.js 
+// 	tWrkr.port.on("newDOM", function(data) {
+// 		TAB[tab.id].location = data.location; 
+// 		TAB[tab.id].doctype = data.doctype;
+// 		TAB[tab.id].html = data.html;
+// 		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tab.id] );
+// 		// if template page, open sidebar by default
+// 		if( TAB[tab.id].location.href=="http://netart.rocks/files/template.html") sidebar.show();
+// 	});	
+// }
+
+// function listenForHeightChange(tab){
+// 	// inject height listener/reporter 
+// 	tWrkr = tab.attach({
+// 		contentScriptFile: './listen-for-resize.js'
+// 	});
+// 	// when worker receives DOM nfo from get-page-dom.js 
+// 	tWrkr.port.on("pageHeight", function(height) {
+// 		if( Height !== height ) sidebar.hide();
+// 		Height = height;
+// 	});		
+// }
 
 // when tab is made active...
 tabs.on('activate', tab => {  
@@ -113,12 +167,18 @@ tabs.on('deactivate', tab => { });
 // when a new page is loaded...
 tabs.on('ready', tab => {  		
 	console.log('ready',tab.id)
-	getDOM(tab);
+	// getDOM(tab);
+	// listenForHeightChange(tab);
+	prepNewTab( tab );
 });
 
 // when tab is closed ( get rid of this tab's data from TAB dictionary )
 tabs.on('closed', tab => {  TAB[tab.id] = undefined; }); 
 
+// when new page is loaded into current tab
+// tabs.on('load', tab => { 
+// 	getDOM(tab);
+// }); 
 
 
 
@@ -216,7 +276,7 @@ var sidebar = sidebars.Sidebar({
 		var win = utils.getMostRecentBrowserWindow();
 		if (utils.isBrowser (win)){
 		    var sidebar = win.document.getElementById ("sidebar");
-		    sidebar.style.minWidth = "600px";
+		    sidebar.style.minWidth = "600px";		    
 		    sidebar.style.width = "600px";
 		}
 	},
