@@ -928,4 +928,42 @@ module.exports = {
         supported: true,
         nfo: { w3c: "Specifies whether the content of an element should be translated or not.", mdn: undefined}
     },
+    // manually added attributes that aren't in w3c/mdn for some reason
+    allowfullscreen: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "This attribute can be set to true if the frame is allowed to be placed into full screen mode by calling its Element.requestFullScreen() method. If this isn't set, the element can't be placed into full screen mode.", mdn: "This attribute can be set to true if the frame is allowed to be placed into full screen mode by calling its Element.requestFullScreen() method. If this isn't set, the element can't be placed into full screen mode."}        
+    },
+    frameborder: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "The value 1 (the default) tells the browser to draw a border between this frame and every other frame. The value 0 tells the browser not to draw a border between this frame and other frames. (HTML 4)", mdn: "The value 1 (the default) tells the browser to draw a border between this frame and every other frame. The value 0 tells the browser not to draw a border between this frame and other frames. (HTML 4)"}        
+    },
+    marginheight: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "The amount of space in pixels between the frame's content and its top and bottom margins. (html4)", mdn: "The amount of space in pixels between the frame's content and its top and bottom margins. (html4)"}        
+    }, 
+    marginwidth: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "The amount of space in pixels between the frame's content and its left and right margins. (html4)", mdn: "The amount of space in pixels between the frame's content and its left and right margins. (html4)"}        
+    }, 
+    longdesc: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "A URI of a long description of the frame. Due to widespread misuse, this is not helpful for non-visual browsers. (html4)", mdn: "A URI of a long description of the frame. Due to widespread misuse, this is not helpful for non-visual browsers. (html4)"}        
+    }, 
+    scrolling: {
+        elements: ["<iframe>"],
+        supported: true,
+        nfo: { w3c: "Enumerated attribute indicating when the browser should provide a scroll bar (or other scrolling device) for the frame: auto (Only when needed), yes (Always provide a scroll bar), no (Never provide a scroll bar). (html4)", mdn: "Enumerated attribute indicating when the browser should provide a scroll bar (or other scrolling device) for the frame: auto (Only when needed), yes (Always provide a scroll bar), no (Never provide a scroll bar). (html4)"}        
+    },
+    profile: {
+        elements: ["<head>"],
+        supported: false,
+        nfo: { w3c: "Specifies a URL to a document that contains a set of rules. The rules can be read by browsers to clearly understand the information in the <meta> tag's content attribute", mdn: undefined}
+    },
 };
+
+

@@ -449,6 +449,8 @@ li.CodeMirror-hint-active {
 .cm-s-bb-code-styles .cm-tag { color: #F92672; }
 /* green */
 .cm-s-bb-code-styles .cm-attribute {color: #a6da27;} 
+.cm-s-bb-code-styles .cm-qualifier {color: #a6da27;} 
+.cm-s-bb-code-styles .cm-builtin {color: #a6da27;} 
 .cm-s-bb-code-styles .cm-def { font-style: normal; color:#a6da27; } 
 
 
@@ -468,18 +470,3 @@ li.CodeMirror-hint-active {
 	background:rgba(255,0,0,0.3);
 	/*color:#fff;*/
 }
-
-
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
-/*ADDED STUFF FOR THE ADDON */
- /*not found in original wwweditor.css*/
-
-.CodeMirror div { color:white; }
