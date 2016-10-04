@@ -103,40 +103,6 @@ function prepNewTab(tab){
 	});	
 }
 
-// function getDOM(tab){
-// 	// make sure TAB[tab.id] has been created in 'activate' listener
-// 	// before proceeding to get the DOM
-// 	if( typeof TAB[tab.id] === "undefined"){
-// 		setTimeout(function(){ getDOM(tab); },250);
-// 		return;
-// 	} 
-
-// 	// inject content script which emits back the DOM nfo of active tab
-// 	tWrkr = tab.attach({
-// 		contentScriptFile: './get-page-dom.js'
-// 	});
-// 	// when worker receives DOM nfo from get-page-dom.js 
-// 	tWrkr.port.on("newDOM", function(data) {
-// 		TAB[tab.id].location = data.location; 
-// 		TAB[tab.id].doctype = data.doctype;
-// 		TAB[tab.id].html = data.html;
-// 		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tab.id] );
-// 		// if template page, open sidebar by default
-// 		if( TAB[tab.id].location.href=="http://netart.rocks/files/template.html") sidebar.show();
-// 	});	
-// }
-
-// function listenForHeightChange(tab){
-// 	// inject height listener/reporter 
-// 	tWrkr = tab.attach({
-// 		contentScriptFile: './listen-for-resize.js'
-// 	});
-// 	// when worker receives DOM nfo from get-page-dom.js 
-// 	tWrkr.port.on("pageHeight", function(height) {
-// 		if( Height !== height ) sidebar.hide();
-// 		Height = height;
-// 	});		
-// }
 
 // when tab is made active...
 tabs.on('activate', tab => {  
@@ -166,9 +132,7 @@ tabs.on('deactivate', tab => { });
 
 // when a new page is loaded...
 tabs.on('ready', tab => {  		
-	console.log('ready',tab.id)
-	// getDOM(tab);
-	// listenForHeightChange(tab);
+	// console.log('ready',tab.id)
 	prepNewTab( tab );
 });
 
@@ -177,7 +141,6 @@ tabs.on('closed', tab => {  TAB[tab.id] = undefined; });
 
 // when new page is loaded into current tab
 // tabs.on('load', tab => { 
-// 	getDOM(tab);
 // }); 
 
 
