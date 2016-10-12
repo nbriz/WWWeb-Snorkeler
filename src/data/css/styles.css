@@ -13,6 +13,53 @@
 
 	/* ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ */
 
+/* ON HOLD FOR NOW
+	#tabs {
+		width: 100%;
+		height: 32px;
+		position: absolute;
+		top:0px;
+		left: 0px;
+		z-index: 9;
+		background:#f2f1f0;
+		padding-top: 8px;
+		transition: top 0.5s ease-out;
+	}
+	.tabs {
+		font-family: sans-serif;
+		color: #ccc;
+		font-size: 12px;
+	}
+
+		#tab-items {
+			padding: 5px 10px 0px 10px;
+		}
+
+		#tab-items a {
+			position:relative; top:1px;
+			background: #272822;
+			padding: 3px 12px;
+			margin: 0 -6px 0 0;
+			border-radius:12px 12px 0 0;
+			border:1px solid #ccc;
+			border-bottom: none;
+			cursor:pointer;
+		}
+		#tab-items a:hover {
+			background:#31332b;
+		}
+		#tab-left, #tab-right { 
+			color:#272822;
+			cursor:pointer;  
+			position:relative; top:-2px;
+		}
+		#tab-right{ margin-right:5px; }
+*/
+
+
+
+
+	/* ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ ' ~ . _ . ~ */
 
 
 	#menu {
@@ -20,12 +67,13 @@
 		position: absolute;	
 		top:0px; left:0px;
 		z-index: 10;
+		box-shadow: 0 12px 12px 0px  rgba(0, 0, 0, 1.5);
 	}
 	.menu {
 		font-family: sans-serif;
 		color:#555;
 		font-size:12px;
-		background: #f2f1f0;
+		background: #f2f1f0;	    
 	}
 		#menu-border {
 			height: 1px;
@@ -42,11 +90,12 @@
 		#menu-items a:hover { color:#F92672; cursor: pointer; }
 
 	.sub {
-		width: 75px;
+		width: 150px;
 		padding: 0px 10px 10px 10px;
 		position: absolute;	
 		top:35px; left:0px;
 		z-index: 10;
+		box-shadow: -3px 3px 2px 0px rgba(0, 0, 0, 0.5);
 	}
 	.sub-item {
 		padding-top: 10px;
@@ -99,10 +148,13 @@
 
 	#snorkeler-editor {
 		position: absolute;
-		z-index: 2,
-		top:100px; left:0px;
+		z-index: 2;
+		/*top:100px; */
+		left:0px;
 		width: 100%;
 		/*height: 100%;*/
+		transition: height 0.5s ease-out,
+					top 0.5s ease-out;
 	}
 
 	#snorkeler-editor .CodeMirror {

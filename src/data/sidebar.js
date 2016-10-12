@@ -2,31 +2,16 @@
 /*
 
 	TODO NOTES:
+
+	- css/js tabs ( on hold for now )
+
+	- code snippets
+
+	- save/download 
+
+	- un-minify 
 	
-	______________________________________________
-    [ info ][ snippets ][ tools ]
-    / index.html \/ styles.css \/ scripts.js \ >>
-    ______________________________________________
-
-    info:
-    	- click to launch orientation mode ( maybe takes u to a custom page for that? )
-    snippets
-    	- drag && drop code snippets
-    	( change based on which language the current tab is in )
-    tools
-    	[selector]
-    	- same as firefox "pick an element from the page" tool
-    	- color picker?
-    	( maybe like firefox distance from 0,0 is charted + outerWidth/Height )
-    	( maybe selector also creates a modal w/xtra info on that area? css info? )
-    	( ie. links to re:videos && element/attribute info? )
-
-   	------------------------------------------------
-   	custom for lesson pages
-
-   	>> tutorial video w/controls
-
-   	>> video errors that interrupt tutorial video && return where last left off??? 
+   	- video errors that interrupt tutorial video && return where last left off??? 
    	( point to <tag> text overlay, rather than speaking it )
 
 
@@ -98,6 +83,9 @@ function makeTutorialElements(){
 	});
 	tutPlyrEle.id = "tutPlayer";
 	document.body.appendChild( tutPlyrEle );
+
+	// make sure editor background is invisible so video can be visible
+	document.querySelector('.cm-s-bb-code-styles').style.background = "rgba(255,255,255,0)"
 }
 
 
@@ -134,11 +122,11 @@ addy.port.on('tutorial-nfo',function( tut ){
 	tutObj = tut;
 	// insert youtube api ( should fire onYouTubeIframeAPIReady )
 	var tag = document.createElement('script');
-		tag.src = "libs/www-widgetapi.js";  
+		// tag.src = "libs/www-widgetapi.js";
+		tag.src = "https://www.youtube.com/iframe_api";    
 	var scpt = document.getElementsByTagName('script')[0];
 	    scpt.parentNode.insertBefore(tag, scpt);
 });
-
 
 
 
@@ -191,8 +179,8 @@ edtr.editor.on('focus',function(){
 
 
 // receive DOM of current tab from index.js
-// add that DOM's code to editor 
 addy.port.on('passDOM',function( doc ){
+	// add that DOM's code to editor 
 	if( doc.doctype ) edtr.editor.setValue( doc.doctype + "\n" + doc.html );
 	else edtr.editor.setValue( doc.html );
 	edtr.uiTip = true;
@@ -208,10 +196,12 @@ addy.port.on('passDOM',function( doc ){
 			edtr.friendlyErrors = true;
 		}
 	} 		
-	else
-		edtr.friendlyErrors = false;
+	else edtr.friendlyErrors = false;
+	
+
 	// make sure right distance form top...
 	eID('snorkeler-editor').style.top = "35px";
+
 	// account for "top" offset
 	eID('snorkeler-editor').style.height = window.innerHeight - 35 + "px";
 
@@ -311,10 +301,12 @@ function showingSub(){
 	else return false;
 }
 
+
 function showSub( item ){
 	var l = eID(item).offsetLeft;
-	var r = l + 95; // .sub: padding=20px + width=75px
-	l = (r>innerWidth) ? innerWidth-95 : l;
+	// var r = l + 95; // .sub: padding=20px + width=75px
+	// l = (r>innerWidth) ? innerWidth-95 : l;
+	while(l+150>innerWidth-20){ l--; } // 150 = width
 	eID(item+"-submenu").style.left = l+"px";
 	eID(item+"-submenu").style.display = "block";
 }
@@ -327,6 +319,23 @@ function hideSub( item ){
 		eID('tools-submenu').style.display = "none";
 	}
 } hideSub();
+
+
+// HOLD FOR NOW
+// function showTabs( ele ){
+// 	eID('show-tabs').textContent="hide tabs";
+// 	eID('tabs').style.top = "32px";
+// 	eID('snorkeler-editor').style.top = "67px";
+// 	eID('snorkeler-editor').style.height = window.innerHeight - 67 + "px";
+// }
+
+// function hideTabs( ele ){
+// 	eID('show-tabs').textContent="show tabs";
+// 	eID('tabs').style.top = "0px";
+// 	eID('snorkeler-editor').style.top = "35px";
+// 	eID('snorkeler-editor').style.height = window.innerHeight - 35 + "px";
+
+// } hideTabs();
 
 // when submenu is open && hover over other menus ------
 document.body.addEventListener('mouseover',function(e){
@@ -351,9 +360,24 @@ document.body.addEventListener('click',function(e){
 	else if(e.target.id=="tools"){
 		hideSub(); showSub('tools');
 	}
+	// else if(e.target.id=="show-tabs"){
+	// 	hideSub();
+	// 	if( e.target.textContent=="hide tabs" ) hideTabs();
+	// 	else showTabs();
+	// }
 	else if(e.target.id=="nfo"){
 		hideSub();
 		eID('nfo-pane').style.display = "block";
+	}
+	else if(e.target.id=="unminify"){
+		hideSub();
+		var value = edtr.editor.getValue();
+		var clean = html_beautify(value,{
+			indent_inner_html: true,
+			indent_size: 1,
+			indent_char: '\t'
+		});
+		edtr.editor.setValue( clean );	
 	}
 	else if(e.target.id=="nfo-close"){
 		hideSub('nfo-pane');

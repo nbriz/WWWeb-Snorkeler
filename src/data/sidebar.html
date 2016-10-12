@@ -12,11 +12,14 @@
 		
 		<!-- <button id="debug" style="position:absolute;top:0px;right:0px;z-index:9999"> debug </button> -->
 		
+		<!-- ++++++++++++++++++++++ menu +++++++++++++++++++++  -->
+
 		<div id="menu" class="menu">
 			<div id="menu-border"></div>
 			<div id="controls" data-status="paused" data-loaded="false">▶ [play tutorial]</div>
 			<div id="menu-items">
 				<a id="nfo"> nfo </a>
+				<!-- <a id="show-tabs"> show tabs </a> -->
 				<a id="snippets"> snippets </a>
 				<a id="tools"> tools </a>				
 			</div>
@@ -34,15 +37,30 @@
 		</div>
 
 		<div class="sub menu" id="tools-submenu">
-			<div class="sub-item" id="template"> html template </div>
+			<div class="sub-item" id="unminify"> clean up code </div>
 			<div class="sub-item" id="selector"> html selector </div>
+			<div class="sub-item" id="template"> html template </div>
 			<div class="sub-item" id="moresoon"> ...more soon! </div>
 		</div>
 
+		<!-- ++++++++++++++++++++++ tabs +++++++++++++++++++++  -->
+			<!-- ON HOLD FOR NOW -->
+<!-- 		<div id="tabs" class="tabs">
+			<div id="tab-items">
+    			<span id="tab-left">◀</span>
+    			<span id="tab-right">▶</span>  
+    			<span id="tab-row"></span>				
+			</div>
+		</div> -->
+
+		<!-- ++++++++++++++++++++++ editor +++++++++++++++++++++  -->
 
 		<div id="snorkeler-editor"></div>
 		
 		<script src="libs/wwweditor.min.js"></script>
+		<script src="libs/beautify.js"></script>
+		<script src="libs/beautify-css.js"></script>
+		<script src="libs/beautify-html.js"></script>		
 		<script src="sidebar.js"></script>
 
 	</body>

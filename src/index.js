@@ -69,11 +69,19 @@ var button = buttons.ActionButton({
 
 function prepNewTab(tab){
 	// make sure TAB[tab.id] has been created in 'activate' listener
-	// before proceeding w/the rest
+	// if not create it here
 	if( typeof TAB[tab.id] === "undefined"){
-		setTimeout(function(){ prepNewTab(tab); },250);
-		return;
+		// console.log('retry');
+		// setTimeout(function(){ prepNewTab(tab); },250);
+		// return;
+		tID = tab.id;
+		TAB[tID] = { 
+			sidebarOpen:false,
+			passedDOM: false, // hasn't passed DOM to sidebar yet ( happens on open )
+		};	
 	} 
+
+	console.log('passed PREP NEW TAB');
 
 	// inject content scripts, which return DOM && listen for Height changes
 	tWrkr = tab.attach({
@@ -86,12 +94,14 @@ function prepNewTab(tab){
 	// -------------------- getDOM --------------------
 	// when worker receives DOM nfo from get-page-dom.js 
 	tWrkr.port.on("newDOM", function(data) {
-		TAB[tab.id].location = data.location; 
-		TAB[tab.id].doctype = data.doctype;
-		TAB[tab.id].html = data.html;
-		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tab.id] );
+		TAB[tID].location = data.location; 
+		TAB[tID].doctype = data.doctype;
+		TAB[tID].html = data.html;
+		// TAB[tID].cssfiles = data.cssfiles; // ON HOLD FOR NOW
+		// TAB[tID].jsfiles = data.jsfiles;	// ON HOLD FOR NOW
+		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tID] );
 		// if template page, open sidebar by default
-		if( TAB[tab.id].location.href=="http://netart.rocks/files/template.html") sidebar.show();
+		if( TAB[tID].location.href=="http://netart.rocks/files/template.html") sidebar.show();
 	});	
 
 
@@ -106,6 +116,7 @@ function prepNewTab(tab){
 
 // when tab is made active...
 tabs.on('activate', tab => {  
+	console.log('activate',tab.id);
 	tID = tab.id;	
 	if( typeof TAB[tID] == "undefined" ){ // ---- if it's a new tab, set it up in the dictionary  
 		TAB[tID] = { 
@@ -132,7 +143,7 @@ tabs.on('deactivate', tab => { });
 
 // when a new page is loaded...
 tabs.on('ready', tab => {  		
-	// console.log('ready',tab.id)
+	console.log('ready',tab.id);
 	prepNewTab( tab );
 });
 
@@ -196,7 +207,6 @@ var sidebar = sidebars.Sidebar({
 			});
 		}
 
-		
 		// when sidebar emits "update" update content w/code from editor (ie. sidebar)
 		worker.port.on("update", function(value) {
 			TAB[tID].editorValue = value;

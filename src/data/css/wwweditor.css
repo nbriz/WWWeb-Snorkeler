@@ -403,6 +403,7 @@ li.CodeMirror-hint-active {
 	letter-spacing: 0.3px;
 	word-spacing: 1px;
 	background: #272822;
+  /*background: rgba(255,255,255,0);*/
 	color: #F8F8F2;
 }
 .cm-s-bb-code-styles .CodeMirror-lines {
