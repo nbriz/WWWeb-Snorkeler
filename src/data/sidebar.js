@@ -6,10 +6,6 @@
 	- css/js tabs ( on hold for now )
 
 	- code snippets
-
-	- save/download 
-
-	- un-minify 
 	
    	- video errors that interrupt tutorial video && return where last left off??? 
    	( point to <tag> text overlay, rather than speaking it )
@@ -430,16 +426,9 @@ document.body.addEventListener('click',function(e){
 //////////////////////////// DEBUG /////////////////////////
 
 function log( stuff ){ console.log( stuff ); }
-function test(){
-	var test = document.createElement('iframe');
-	document.body.appendChild( test );
-}
 
 document.body.addEventListener('keydown',function(e){
 	switch(e.key){
-		case "q" : tutPlyr.destroy(); break;
-		case "w" : addy.port.emit('editor-focus','w'); break;
-		case "e" : log(eID('tutPlayer')); break;
-		case "t" : test(); break;
+		case "q" : /**/; break;
 	}
 });
