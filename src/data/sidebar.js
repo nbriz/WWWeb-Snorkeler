@@ -301,6 +301,21 @@ function showingSub(){
 	else return false;
 }
 
+function download(filename, text) {
+	//http://stackoverflow.com/a/18197511/1104148
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
 
 function showSub( item ){
 	var l = eID(item).offsetLeft;
@@ -369,6 +384,9 @@ document.body.addEventListener('click',function(e){
 		hideSub();
 		eID('nfo-pane').style.display = "block";
 	}
+	else if(e.target.id=="nfo-close"){
+		hideSub('nfo-pane');
+	}	
 	else if(e.target.id=="unminify"){
 		hideSub();
 		var value = edtr.editor.getValue();
@@ -379,9 +397,12 @@ document.body.addEventListener('click',function(e){
 		});
 		edtr.editor.setValue( clean );	
 	}
-	else if(e.target.id=="nfo-close"){
-		hideSub('nfo-pane');
-	}
+	else if(e.target.id=="save"){
+		hideSub();
+		var filename = prompt('save as...');
+		if( filename )
+			download(filename, edtr.editor.getValue() );
+	}	
 	else if(e.target.id=="selector" && e.target.className=="sub-item"){
 		hideSub();
 		e.target.className = "sub-item-locked"
