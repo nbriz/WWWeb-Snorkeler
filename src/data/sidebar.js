@@ -98,17 +98,32 @@ function onYouTubeIframeAPIReady() {
 	eID('controls').innerHTML = "▎▎[pause tutorial]";
 	eID('controls').setAttribute('data-status','playing');
 	// start video loop
+	var lastT;
 	tutLooper = setInterval(function(){
 
 		var t = Math.floor(tutPlyr.getCurrentTime());
-		//console.log(t)
 		// maybe round to first place: 23.4 ( instead of whole number )
 
 		if( tutObj.script.hasOwnProperty(t) ){
-			edtr.editor.setValue( tutObj.script[t] );
-			edtr.update();
+
+			if( tutObj.script[t]=="fadeOut"){
+				// fade out the code && fade in the video
+				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) + 0.75/30;
+				document.querySelector('.CodeMirror-lines').style.opacity = 0;
+			
+			} else if( tutObj.script[t]=="fadeIn" ){
+				// fade out the video && fade in the code
+				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) - 0.75/30;
+				document.querySelector('.CodeMirror-lines').style.opacity = 1;
+			
+			} else if(lastT!==t) {
+				// edit the code w/new code from data.json
+				edtr.editor.setValue( tutObj.script[t] );
+				edtr.update();
+			}			
 		}
 
+		lastT = t;
 	},1000/30);
 }   
 
