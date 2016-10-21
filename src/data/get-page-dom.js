@@ -125,8 +125,8 @@ if( document.doctype ){
 var outerHTML = document.documentElement.outerHTML;
 	outerHTML = outerHTML.replace('<head>','\n\t<head>');
 	outerHTML = outerHTML.replace('</body>','\t</body>\n');
-
-
+var isempty = "<html>\n\t<head></head><body>	</body>\n</html>";
+if( outerHTML == isempty ) outerHTML = "";
 
 // ---------------------------------------------------------------- emit data bax to index
 
