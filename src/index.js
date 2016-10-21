@@ -68,20 +68,15 @@ var button = buttons.ActionButton({
 // ---------------------------------------------------------------------
 
 function prepNewTab(tab){
+	tID = tab.id;
 	// make sure TAB[tab.id] has been created in 'activate' listener
 	// if not create it here
-	if( typeof TAB[tab.id] === "undefined"){
-		// console.log('retry');
-		// setTimeout(function(){ prepNewTab(tab); },250);
-		// return;
-		tID = tab.id;
+	if( typeof TAB[tab.id] === "undefined"){		
 		TAB[tID] = { 
 			sidebarOpen:false,
 			passedDOM: false, // hasn't passed DOM to sidebar yet ( happens on open )
 		};	
 	} 
-
-	console.log('passed PREP NEW TAB');
 
 	// inject content scripts, which return DOM && listen for Height changes
 	tWrkr = tab.attach({
@@ -97,6 +92,7 @@ function prepNewTab(tab){
 		TAB[tID].location = data.location; 
 		TAB[tID].doctype = data.doctype;
 		TAB[tID].html = data.html;
+		// TAB[tID].editorValue = data.doctype + data.html;
 		// TAB[tID].cssfiles = data.cssfiles; // ON HOLD FOR NOW
 		// TAB[tID].jsfiles = data.jsfiles;	// ON HOLD FOR NOW
 		if(sWrkr) sWrkr.port.emit( "passDOM", TAB[tID] );
@@ -108,15 +104,19 @@ function prepNewTab(tab){
 	// ------------- listenForHeightChange ------------
 	// when worker receives DOM nfo from get-page-dom.js 
 	tWrkr.port.on("pageHeight", function(height) {
-		if( Height !== height ) sidebar.hide();
-		Height = height;
+		// if( Height !== height ) sidebar.hide();
+		if( typeof Height == "undefined" ) Height = height;
+		if( Math.abs(Height-height)>100 ) {
+			sidebar.hide();
+			Height = height;
+		}
 	});	
 }
 
 
 // when tab is made active...
 tabs.on('activate', tab => {  
-	console.log('activate',tab.id);
+	// console.log('activate',tab.id);
 	tID = tab.id;	
 	if( typeof TAB[tID] == "undefined" ){ // ---- if it's a new tab, set it up in the dictionary  
 		TAB[tID] = { 
@@ -143,7 +143,7 @@ tabs.on('deactivate', tab => { });
 
 // when a new page is loaded...
 tabs.on('ready', tab => {  		
-	console.log('ready',tab.id);
+	// console.log('ready',tab.id);
 	prepNewTab( tab );
 });
 
@@ -197,19 +197,22 @@ var sidebar = sidebars.Sidebar({
 		// pass DOM to the sidebar.js
 		if( !TAB[tID].passedDOM  ){
 			// if never passed before
+			console.log('passing',TAB[tID].html.substr(0,25));
 			worker.port.emit( "passDOM", TAB[tID] );
 			TAB[tID].passedDOM = true;
 		} else {
 			// if previously passed for this TAB
 			worker.port.emit("passDOM", { 
 				location: TAB[tID].location,
-				html: TAB[tID].editorValue 
+				// html: TAB[tID].editorValue 
+				html: TAB[tID].html
 			});
 		}
 
 		// when sidebar emits "update" update content w/code from editor (ie. sidebar)
 		worker.port.on("update", function(value) {
-			TAB[tID].editorValue = value;
+			// TAB[tID].editorValue = value;
+			TAB[tID].html = value;
 			updatePageContent( value );
 		});	
 		// when sidebar emits "show-selector" inject selector code into active tab
@@ -232,13 +235,14 @@ var sidebar = sidebars.Sidebar({
 		worker.port.on('start-tutorial',function(){
 			var pa = TAB[tID].location.pathname.substr(11,TAB[tID].location.pathname.length).split('/');
 			var tut = Request({
-				url: 'http://netart.rocks/api?season='+pa[0]+'&episode='+pa[0],
+				// url: 'http://netart.rocks/api?season='+pa[0]+'&episode='+pa[0],
+				url: 'http://netart.rocks/api?tut='+pa[0],
 				onComplete: function (response) {
 					worker.port.emit('tutorial-nfo', {
 						videos: JSON.parse(response.text).data.videos,
 						script: JSON.parse(response.text).data.script,
-						season: JSON.parse(response.text).season,
-						episode: JSON.parse(response.text).episode,
+						// season: JSON.parse(response.text).season,
+						episode: JSON.parse(response.text).episode						
 					});					
 				}
 			});
