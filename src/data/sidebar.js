@@ -88,7 +88,7 @@ function makeTutorialElements(){
 function onYouTubeIframeAPIReady() {
 	// create player instance
 	tutPlyr = new YT.Player('tutPlayer', {
-		playerVars: { 'autoplay': 1, 'controls': 0 },
+		playerVars: { 'autoplay': 1, 'controls': 0, 'rel':0 },
 		height: '345',
 		width: '600',
 		videoId: tutObj.videos[0]
