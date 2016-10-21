@@ -60,12 +60,14 @@ function makeTutorialElements(){
 			if( this.getAttribute('data-status')=="paused"){
 				tutPlyr.playVideo();
 				this.innerHTML = "▎▎[pause tutorial]";
-				this.setAttribute('data-status','playing');												
+				this.setAttribute('data-status','playing');			
+				eID('tutPlayer').style.opacity = eID('tutPlayer').getAttribute('data-opacity');							
 			}
 			else if( this.getAttribute('data-status')=="playing"){
 				tutPlyr.pauseVideo();
 				this.innerHTML = "▶ [play tutorial]";
 				this.setAttribute('data-status','paused');
+				eID('tutPlayer').style.opacity = 0.05;
 			}
 		}
 	}
@@ -75,9 +77,10 @@ function makeTutorialElements(){
 		position: "absolute",
 		zIndex: "1",
 		top:"35px", left:"0px",
-		opacity: 0.25
+		opacity: 0.2
 	});
 	tutPlyrEle.id = "tutPlayer";
+	tutPlyrEle.setAttribute('data-opacity', 0.2 );
 	document.body.appendChild( tutPlyrEle );
 
 	// make sure editor background is invisible so video can be visible
@@ -108,12 +111,14 @@ function onYouTubeIframeAPIReady() {
 
 			if( tutObj.script[t]=="fadeOut"){
 				// fade out the code && fade in the video
-				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) + 0.75/30;
-				document.querySelector('.CodeMirror-lines').style.opacity = 0;
+				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) + 0.80/30;
+				eID('tutPlayer').setAttribute('data-opacity', eID('tutPlayer').style.opacity );
+				document.querySelector('.CodeMirror-lines').style.opacity = 0;				
 			
 			} else if( tutObj.script[t]=="fadeIn" ){
 				// fade out the video && fade in the code
-				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) - 0.75/30;
+				eID('tutPlayer').style.opacity = parseFloat(eID('tutPlayer').style.opacity) - 0.80/30;
+				eID('tutPlayer').setAttribute('data-opacity', eID('tutPlayer').style.opacity );
 				document.querySelector('.CodeMirror-lines').style.opacity = 1;
 			
 			} else if(lastT!==t) {
