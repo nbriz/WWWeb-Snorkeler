@@ -7,7 +7,7 @@ var Request 	= require("sdk/request").Request;
 
 var { setTimeout } = require("sdk/timers");
 
-var version = "0.0.7";
+var version = "1.0.0";
 
 var sWrkr; 		// current sidebar worker ( new everytime sidebar opens )
 var tWrkr;		// current tab worker  ( new everytime new tab is open )

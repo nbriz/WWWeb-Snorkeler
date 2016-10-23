@@ -1,3 +1,4 @@
 jpm-sdk/node_modules
 src/wwweb-snorkeler.xpi
 src/sign.sh
+build/old

@@ -2,7 +2,9 @@
 
 # WWWeb-Snorkeler 
 
-...is a Firefox addon that takes u just below the wwweb's surface. interactive accompaniment to the 'How To / Why Make Internet Art' series
+...is a Firefox addon that takes u just below the wwweb's surface. interactive accompaniment to the 'How To / Why Make Internet Art' series, visit [http://netart.rocks](http://netart.rocks) to learn more
+
+the WWWeb-Snorkeler is an implementation of my (WWWeditor project)[https://github.com/nbriz/WWWEditor] ( u can check out dependencies + credz there ) ++ beyond all that stuff, the WWWeb-Snorkeler also makes use of (js-beutify)[https://github.com/beautify-web/js-beautify] for cleaning up code.
 
 ![](screen-shot.png)
 
