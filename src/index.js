@@ -7,7 +7,7 @@ var Request 	= require("sdk/request").Request;
 
 var { setTimeout } = require("sdk/timers");
 
-var version = "1.0.0";
+var version = "1.0.1";
 
 var sWrkr; 		// current sidebar worker ( new everytime sidebar opens )
 var tWrkr;		// current tab worker  ( new everytime new tab is open )
@@ -197,7 +197,7 @@ var sidebar = sidebars.Sidebar({
 		// pass DOM to the sidebar.js
 		if( !TAB[tID].passedDOM  ){
 			// if never passed before
-			console.log('passing',TAB[tID].html.substr(0,25));
+			// console.log('passing',TAB[tID].html.substr(0,25));
 			worker.port.emit( "passDOM", TAB[tID] );
 			TAB[tID].passedDOM = true;
 		} else {
